@@ -36,6 +36,15 @@ fn main() {
                     eprintln!("{}", e);
                 }
             },
+            "dir" => {
+                let child = Command::new("cmd")
+                    .args(&["/C", "dir"])
+                    .spawn();
+                match child {
+                    Ok(mut child) => { let _ = child.wait(); }
+                    Err(e) => eprintln!("{}", e),
+                }
+            },
             "exit" => return,
             command => {
                 let child = Command::new(command)
