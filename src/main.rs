@@ -4,6 +4,8 @@ use std::io::stdout;
 use std::path::Path;
 use std::process::Command;
 
+// https://www.joshmcguigan.com/blog/build-your-own-shell-rust/
+
 fn main() {
 
     loop {
