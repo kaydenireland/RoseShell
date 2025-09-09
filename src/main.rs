@@ -1,5 +1,7 @@
+use std::env;
 use std::io::{stdin, Write};
 use std::io::stdout;
+use std::path::Path;
 use std::process::Command;
 
 fn main() {
@@ -13,18 +15,37 @@ fn main() {
         let mut input = String::new();
 
         stdin().read_line(&mut input).unwrap();
+        let input = input.trim();
 
-        let mut parts = input.trim().split_whitespace();
+        if input.is_empty() {
+            continue;
+        }
+
+        let mut parts = input.split_whitespace();
         let command = parts.next().unwrap();
         let args = parts;
 
 
-        let mut child = Command::new(command)
-            .args(args)
-            .spawn()
-            .unwrap();
+        match command {
+            "cd" => {
+                let new_dir = args.peekable().peek().map_or("/", |x| *x);
+                let root = Path::new(new_dir);
+                if let Err(e) = env::set_current_dir(&root) {
+                    eprintln!("{}", e);
+                }
+            },
+            "exit" => return,
+            command => {
+                let child = Command::new(command)
+                    .args(args)
+                    .spawn();
 
-        // don't accept another command until this one completes
-        let _ = child.wait();
+                // gracefully handle malformed user input
+                match child {
+                    Ok(mut child) => { let _ = child.wait(); },
+                    Err(e) => eprintln!("{}", e),
+                };
+            }
+        }
     }
 }
